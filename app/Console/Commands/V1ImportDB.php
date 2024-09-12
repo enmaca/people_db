@@ -43,7 +43,7 @@ class V1ImportDB
                     $sObj->importINE($file);
                     break;
                 default:
-                    throw new Exception('File not implemented '.$file);
+                    dump('File not implemented '.$file);
             }
         }
 
