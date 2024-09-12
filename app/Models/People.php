@@ -33,6 +33,6 @@ class People extends Model
         'ine_mza',
         'ine_consec',
         'ine_cred',
-        'ine_folio'
+        'ine_folio',
     ];
 }

@@ -22,6 +22,7 @@ class ImportDB extends Command
 
     /**
      * Execute the console command.
+     *
      * @throws \Exception
      */
     public function handle(): void
@@ -38,7 +39,7 @@ class ImportDB extends Command
     {
         $this->info('Importing database version '.$version);
 
-        switch($version){
+        switch ($version) {
             case '1':
                 $this->importDBv1();
                 break;

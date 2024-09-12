@@ -8,8 +8,6 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -22,7 +20,7 @@ return new class extends Migration
             $table->date('fecha_nacimiento')->index();
             $table->enum('sexo', ['M', 'H']);
             $table->string('calle')->index();
-            $table->string('curp', 18)->nullable()->unique();;
+            $table->string('curp', 18)->nullable()->unique();
             $table->string('int', 10)->index()->nullable();
             $table->string('ext', 10)->index();
             $table->string('colonia')->index();
@@ -43,12 +41,9 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {
         Schema::dropIfExists('people');
     }
 };
-
