@@ -12,7 +12,7 @@ class V1ImportDB
     private const CHUNK_SIZE = 1000;
     private array $ine_curps = [];
 
-    public function __construct(private readonly string $path)
+    public function __construct(private readonly string $path, private readonly string $version)
     {
         //
     }
@@ -24,12 +24,14 @@ class V1ImportDB
      */
     public static function version(string $version): bool
     {
+
         $path_dir = database_path('people_db/'.$version);
         if (! file_exists($path_dir) || ! is_readable($path_dir)) {
             throw new Exception('The file does not exist or is not readable. '.$path_dir);
         }
 
-        $sObj = new self($path_dir);
+        $sObj = new self($path_dir, $version);
+
 
         $files = scandir($path_dir);
 
@@ -50,10 +52,19 @@ class V1ImportDB
         return true;
     }
 
+    /**
+     * @throws Exception
+     */
     private function importINE(mixed $file): void
     {
         echo 'Importing INE file: '.$this->path.'/'.$file;
 
+        $processed_path = database_path('people_db/processed');
+        if( !is_dir($processed_path) ) {
+            if( !mkdir($processed_path, 0777, true)) {
+                throw new Exception('Error creating processed directory '.$processed_path);
+            }
+        }
         $file = fopen($this->path.'/'.$file, 'r');
         $header = fgetcsv($file);
         $batch = [];
@@ -92,7 +103,7 @@ class V1ImportDB
 
                 if (count($batch) === self::CHUNK_SIZE) {
                     DB::beginTransaction();
-                    dump(People::insert($batch));
+                    People::insert($batch);
                     dump('Total records imported: '.$count);
                     DB::commit();
                     $batch = [];
@@ -107,11 +118,15 @@ class V1ImportDB
 
             DB::commit();
             dump('Total records imported: '.$count);
+            if( !rename($this->path.'/'.$file, $processed_path.'/'.$file) ) {
+                throw new Exception('Error moving file to processed directory');
+            }
         } catch (Exception $e) {
             echo 'Error: '.$e->getMessage()."\n";
         } finally {
             fclose($file);
         }
+
     }
 
     public function parseDateINE($dateString)
