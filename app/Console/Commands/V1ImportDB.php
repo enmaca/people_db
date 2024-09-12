@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class V1ImportDB
 {
-    private const CHUNK_SIZE = 5000;
+    private const CHUNK_SIZE = 1000;
     private array $ine_curps = [];
 
     public function __construct(private readonly string $path)
