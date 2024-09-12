@@ -3,11 +3,15 @@
 namespace App\Console\Commands;
 
 use App\Models\People;
-use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class V1ImportDB
 {
+    private const CHUNK_SIZE = 5000;
+    private array $ine_curps = [];
+
     public function __construct(private readonly string $path)
     {
         //
@@ -46,18 +50,22 @@ class V1ImportDB
         return true;
     }
 
-    private function importINE(mixed $file)
+    private function importINE(mixed $file): void
     {
         echo 'Importing INE file: '.$this->path.'/'.$file;
 
         $file = fopen($this->path.'/'.$file, 'r');
         $header = fgetcsv($file);
+        $batch = [];
         $count = 0;
-        while ($row = fgetcsv($file)) {
-            $data = array_combine($header, $row);
-            $count++;
-            try {
-                People::create([
+
+        try {
+            while ($row = fgetcsv($file)) {
+                $data = array_combine($header, $row);
+                if( $data['curp'] !== null && in_array($data['curp'], array_keys($this->ine_curps)) ) {
+                    continue;
+                }
+                $batch[] = [
                     'edad' => intval($data['edad']),
                     'nombre' => $data['nombre'],
                     'paterno' => $data['paterno'],
@@ -80,11 +88,29 @@ class V1ImportDB
                     'ine_consec' => $data['consec'],
                     'ine_cred' => $data['cred'],
                     'ine_folio' => $data['folio'],
-                ])->save();
-                echo 'Record created: '.$data['curp'].' count: '.$count."\n";
-            } catch (Exception $e) {
-                echo 'Error: '.$e->getMessage()."\n";
+                ];
+
+                if (count($batch) === self::CHUNK_SIZE) {
+                    DB::beginTransaction();
+                    dump(People::insert($batch));
+                    dump('Total records imported: '.$count);
+                    DB::commit();
+                    $batch = [];
+                }
+                $this->ine_curps[$data['curp']] = [];
+                $count++;
             }
+
+            if (!empty($batch)) {
+                People::insert($batch);
+            }
+
+            DB::commit();
+            dump('Total records imported: '.$count);
+        } catch (Exception $e) {
+            echo 'Error: '.$e->getMessage()."\n";
+        } finally {
+            fclose($file);
         }
     }
 
