@@ -87,11 +87,11 @@ class V1ImportDB
             if (in_array($data['cve'], array_keys($this->ineCVE))) {
                 $skipped++;
                 $skippedBatch++;
+                dump('Skipped record: '.$skipped);
                 if ($skippedBatch === 1000) {
                     dump('Skipped records: '.$skipped);
                     $skippedBatch = 0;
                 }
-
                 continue;
             }
 
