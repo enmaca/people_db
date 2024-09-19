@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 class V1ImportDB
 {
     private const CHUNK_SIZE = 1000;
+
     private array $ine_curps = [];
 
     public function __construct(private readonly string $path, private readonly string $version)
@@ -31,7 +32,6 @@ class V1ImportDB
         }
 
         $sObj = new self($path_dir, $version);
-
 
         $files = scandir($path_dir);
 
@@ -61,8 +61,8 @@ class V1ImportDB
         echo 'Importing INE file: '.$this->path.'/'.$file;
 
         $processed_path = database_path('people_db/processed');
-        if( !is_dir($processed_path) ) {
-            if( !mkdir($processed_path, 0777, true)) {
+        if (! is_dir($processed_path)) {
+            if (! mkdir($processed_path, 0777, true)) {
                 throw new Exception('Error creating processed directory '.$processed_path);
             }
         }
@@ -71,62 +71,68 @@ class V1ImportDB
         $batch = [];
         $count = 0;
 
-        try {
-            while ($row = fgetcsv($file)) {
-                $data = array_combine($header, $row);
-                if( $data['curp'] !== null && in_array($data['curp'], array_keys($this->ine_curps)) ) {
-                    continue;
-                }
-                $batch[] = [
-                    'edad' => intval($data['edad']),
-                    'nombre' => $data['nombre'],
-                    'paterno' => $data['paterno'],
-                    'materno' => $data['materno'],
-                    'fecha_nacimiento' => $this->parseDateINE($data['fecnac']),
-                    'sexo' => $data['sexo'],
-                    'calle' => $data['calle'],
-                    'curp' => empty($data['curp']) ? null : $data['curp'],
-                    'int' => $data['int'],
-                    'ext' => $data['ext'],
-                    'colonia' => $data['colonia'],
-                    'cp' => intval($data['cp']),
-                    'ine_cve' => $data['cve'],
-                    'ine_e' => intval($data['e']),
-                    'ine_d' => intval($data['d']),
-                    'ine_m' => intval($data['m']),
-                    'ine_s' => intval($data['s']),
-                    'ine_l' => intval($data['l']),
-                    'ine_mza' => intval($data['mza']),
-                    'ine_consec' => $data['consec'],
-                    'ine_cred' => $data['cred'],
-                    'ine_folio' => $data['folio'],
-                ];
+        while ($row = fgetcsv($file)) {
+            $data = array_combine($header, $row);
+            if ($data['curp'] !== null && in_array($data['curp'], array_keys($this->ine_curps))) {
+                continue;
+            }
+            $batch[] = [
+                'edad' => intval($data['edad']),
+                'nombre' => $data['nombre'],
+                'paterno' => $data['paterno'],
+                'materno' => $data['materno'],
+                'fecha_nacimiento' => $this->parseDateINE($data['fecnac']),
+                'sexo' => $data['sexo'],
+                'calle' => $data['calle'],
+                'curp' => empty($data['curp']) ? null : $data['curp'],
+                'int' => $data['int'],
+                'ext' => $data['ext'],
+                'colonia' => $data['colonia'],
+                'cp' => intval($data['cp']),
+                'ine_cve' => $data['cve'],
+                'ine_e' => intval($data['e']),
+                'ine_d' => intval($data['d']),
+                'ine_m' => intval($data['m']),
+                'ine_s' => intval($data['s']),
+                'ine_l' => intval($data['l']),
+                'ine_mza' => intval($data['mza']),
+                'ine_consec' => $data['consec'],
+                'ine_cred' => $data['cred'],
+                'ine_folio' => $data['folio'],
+            ];
 
-                if (count($batch) === self::CHUNK_SIZE) {
+            if (count($batch) === self::CHUNK_SIZE) {
+                try {
                     DB::beginTransaction();
                     People::insert($batch);
-                    dump('Total records imported: '.$count);
+                    dump('Partial records imported: '.$count);
                     DB::commit();
                     $batch = [];
+                } catch (Exception $e) {
+                    dump('Error: in records '.$count);
                 }
-                $this->ine_curps[$data['curp']] = [];
-                $count++;
             }
-
-            if (!empty($batch)) {
-                People::insert($batch);
-            }
-
-            DB::commit();
-            dump('Total records imported: '.$count);
-            if( !rename($this->path.'/'.$file, $processed_path.'/'.$file) ) {
-                throw new Exception('Error moving file to processed directory');
-            }
-        } catch (Exception $e) {
-            echo 'Error: '.$e->getMessage()."\n";
-        } finally {
-            fclose($file);
+            $this->ine_curps[$data['curp']] = [];
+            $count++;
         }
+
+        if (! empty($batch)) {
+            try {
+                DB::beginTransaction();
+                People::insert($batch);
+                DB::commit();
+                $batch = [];
+            } catch (Exception $e) {
+                dump('Error: in records '.$count);
+            }
+        }
+
+        dump($this->path.'/'.$file.' => '.$processed_path.'/'.$file);
+        dump('Total records imported: '.$count);
+        if (! rename($this->path.'/'.$file, $processed_path.'/'.$file)) {
+            throw new Exception('Error moving file to processed directory');
+        }
+        fclose($file);
 
     }
 
