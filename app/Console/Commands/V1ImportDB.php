@@ -115,6 +115,7 @@ class V1ImportDB
                     DB::rollBack();
                     foreach ($batch as $record) {
                         try {
+                            dump('Trying to insert record '.$record['ine_cve']);
                             People::create($record);
                         } catch (Exception $e) {
                             dump('Error: '.$e->getMessage());
@@ -141,6 +142,7 @@ class V1ImportDB
                         People::create($record);
                     } catch (Exception $e) {
                         dump('Error: '.$e->getMessage());
+
                         continue;
                     }
                 }
