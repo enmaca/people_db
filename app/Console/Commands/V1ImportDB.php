@@ -41,6 +41,54 @@ class V1ImportDB
 
             switch ($file) {
                 case 'Ine_Baja_California_Norte_2018.csv':
+                case 'Ine_Baja_California_Sur_2018.csv':
+                case 'Ine_Coahuila_2018.csv':
+                case 'Ine_Guanajuato_1_2018.csv':
+                case 'Ine_Morelos_2018.csv':
+                case 'Ine_Chiapas_2_2018.csv':
+                case 'Ine_EdoMex_5_2018.csv':
+                case 'Ine_Michoacan_1_2018.csv':
+                case 'Ine_Puebla_2_2018.csv':
+                case 'Ine_Veracruz_1_2018.csv':
+                case 'Ine_Chihuahua_2018.csv':
+                case 'Ine_EdoMex_6_2018.csv':
+                case 'Ine_Michoacan_2_2018.csv':
+                case 'Ine_Queretaro_2018.csv':
+                case 'Ine_Veracruz_2_2018.csv':
+                case 'Ine_QuintanaRoo_2018.csv':
+                case 'Ine_Veracruz_3_2018.csv':
+                case 'Ine_CDMX_1_2018.csv':
+                case 'Ine_Colima_2018.csv':
+                case 'Ine_Guanajuato_2_2018.csv':
+                case 'Ine_Nayarit_2018.csv':
+                case 'Ine_San_Luis_Potosi_2018.csv':
+                case 'Ine_Yucatan_2018.csv':
+                case 'Ine_CDMX_2_2018.csv':
+                case 'Ine_Durango_2018.csv':
+                case 'Ine_Guerrero_2018.csv':
+                case 'Ine_Nuevo_Leon_1_2018.csv':
+                case 'Ine_Sinaloa_2018.csv':
+                case 'Ine_Zacatecas_2018.csv':
+                case 'Ine_CDMX_3_2018.csv':
+                case 'Ine_EdoMex_1_2018.csv':
+                case 'Ine_Hidalgo_2018.csv':
+                case 'Ine_Nuevo_Leon_2_2018.csv':
+                case 'Ine_Sonora_2018.csv':
+                case 'Ine_CDMX_4_2018.csv':
+                case 'Ine_EdoMex_2_2018.csv':
+                case 'Ine_Jalisco_1_2018.csv':
+                case 'Ine_Oaxaca_1_2018.csv':
+                case 'Ine_Tabasco_2018.csv':
+                case 'Ine_Campeche_2018.csv':
+                case 'Ine_EdoMex_3_2018.csv':
+                case 'Ine_Jalisco_2_2018.csv':
+                case 'Ine_Oaxaca_2_2018.csv':
+                case 'Ine_Tamaulipas_2018.csv':
+                case 'Ine_Chiapas_1_2018.csv':
+                case 'Ine_EdoMex_4_2018.csv':
+                case 'Ine_Jalisco_3_2018.csv':
+                case 'Ine_Puebla_1_2018.csv':
+                case 'Ine_Tlaxcala_2018.csv':
                     $sObj->importINE($file);
                     break;
                 default:
@@ -64,14 +112,13 @@ class V1ImportDB
                 throw new Exception('Error creating processed directory '.$processed_path);
             }
         }
-        $file = fopen($this->path.'/'.$file, 'r');
+        $filep = fopen($this->path.'/'.$file, 'r');
         $header = fgetcsv($file);
         $this->ineCVE = [];
         $batch = [];
         $count = 0;
         $skipped = 0;
-        $skippedBatch = 0;
-        while ($row = fgetcsv($file)) {
+        while ($row = fgetcsv($filep)) {
             $data = array_combine($header, $row);
 
             if (empty($data['curp'])) {
@@ -157,8 +204,6 @@ class V1ImportDB
         if (! rename($this->path.'/'.$file, $processed_path.'/'.$file)) {
             throw new Exception('Error moving file to processed directory');
         }
-        dd('ok');
-
     }
 
     public function parseDateINE($dateString)
