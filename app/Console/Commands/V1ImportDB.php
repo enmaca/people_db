@@ -11,7 +11,7 @@ class V1ImportDB
 {
     private const CHUNK_SIZE = 1000;
 
-    private array $ineCurps = [];
+    private array $ineCVE = [];
 
     public function __construct(private readonly string $path, private readonly string $version)
     {
@@ -33,6 +33,9 @@ class V1ImportDB
 
         $sObj = new self($path_dir, $version);
 
+        ini_set('memory_limit', '2048M');
+
+        $sObj->ineCVE = People::select('ine_cve')->get()->pluck('ine_cve')->toArray();
         $files = scandir($path_dir);
 
         foreach ($files as $file) {
@@ -70,22 +73,16 @@ class V1ImportDB
         $header = fgetcsv($file);
         $batch = [];
         $count = 0;
-
+        $skipped = 0;
         while ($row = fgetcsv($file)) {
             $data = array_combine($header, $row);
 
-            dump($data['curp']);
-            dump($row);
-            dd('ok');
             if (empty($data['curp'])) {
-                dump($data['curp']);
-                dump($row);
-
-                continue;
+                $data['curp'] = null;
             }
-            if (in_array($data['curp'], array_keys($this->ineCurps))) {
-                dump($data['curp'].' => ', $this->ineCurps[$data['curp']]);
 
+            if (in_array($data['cve'], array_keys($this->ineCVE))) {
+                $skipped++;
                 continue;
             }
             $batch[] = [
@@ -126,7 +123,7 @@ class V1ImportDB
                     continue;
                 }
             }
-            $this->ineCurps[$data['curp']] = [];
+            $this->ineCVE[$data['curp']] = [];
             $count++;
         }
 
@@ -140,13 +137,15 @@ class V1ImportDB
                 dump('Error: in records '.$count);
             }
         }
+        fclose($file);
 
         dump($this->path.'/'.$file.' => '.$processed_path.'/'.$file);
         dump('Total records imported: '.$count);
+        dump('Total records skipped: '.$skipped);
         if (! rename($this->path.'/'.$file, $processed_path.'/'.$file)) {
             throw new Exception('Error moving file to processed directory');
         }
-        fclose($file);
+        dd('ok');
 
     }
 
