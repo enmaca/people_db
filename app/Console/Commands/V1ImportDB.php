@@ -11,7 +11,7 @@ class V1ImportDB
 {
     private const CHUNK_SIZE = 1000;
 
-    private array $ine_curps = [];
+    private array $ineCurps = [];
 
     public function __construct(private readonly string $path, private readonly string $version)
     {
@@ -73,8 +73,11 @@ class V1ImportDB
 
         while ($row = fgetcsv($file)) {
             $data = array_combine($header, $row);
-            dump('pass', $this->ine_curps);
-            if ($data['curp'] !== null && in_array($data['curp'], array_keys($this->ine_curps))) {
+            if( $data['curp'] === null ) {
+                continue;
+            }
+            if (in_array($data['curp'], array_keys($this->ineCurps))) {
+                dump($data['curp']. ' => ', $this->ineCurps[$data['curp']]);
                 continue;
             }
             $batch[] = [
@@ -115,7 +118,7 @@ class V1ImportDB
                     continue;
                 }
             }
-            $this->ine_curps[$data['curp']] = [];
+            $this->ineCurps[$data['curp']] = [];
             $count++;
         }
 
