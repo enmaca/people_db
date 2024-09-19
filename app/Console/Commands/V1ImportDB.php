@@ -42,6 +42,7 @@ class V1ImportDB
 
             switch ($file) {
                 case 'Ine_Baja_California_Norte_2018.csv':
+                case 'Ine_Chiapas_2_2018.csv':
                     $sObj->importINE($file);
                     break;
                 default:
