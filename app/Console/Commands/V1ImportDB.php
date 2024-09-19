@@ -73,11 +73,12 @@ class V1ImportDB
 
         while ($row = fgetcsv($file)) {
             $data = array_combine($header, $row);
-            if( $data['curp'] === null ) {
+            if (empty($data['curp'])) {
                 continue;
             }
             if (in_array($data['curp'], array_keys($this->ineCurps))) {
-                dump($data['curp']. ' => ', $this->ineCurps[$data['curp']]);
+                dump($data['curp'].' => ', $this->ineCurps[$data['curp']]);
+
                 continue;
             }
             $batch[] = [
