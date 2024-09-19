@@ -110,6 +110,7 @@ class V1ImportDB
                     $batch = [];
                 } catch (Exception $e) {
                     dump('Error: in records '.$count);
+                    continue;
                 }
             }
             $this->ine_curps[$data['curp']] = [];
