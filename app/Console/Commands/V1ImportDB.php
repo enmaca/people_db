@@ -196,7 +196,7 @@ class V1ImportDB
                 }
             }
         }
-        fclose($file);
+        fclose($filep);
 
         dump($this->path.'/'.$file.' => '.$processed_path.'/'.$file);
         dump('Total records imported: '.$count);
