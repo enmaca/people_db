@@ -91,6 +91,7 @@ class V1ImportDB
                     dump('Skipped records: '.$skipped);
                     $skippedBatch = 0;
                 }
+
                 continue;
             }
 
