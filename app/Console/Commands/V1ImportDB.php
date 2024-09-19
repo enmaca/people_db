@@ -78,18 +78,6 @@ class V1ImportDB
                 $data['curp'] = null;
             }
 
-            if (in_array($data['cve'],$this->ineCVE)) {
-                $skipped++;
-                $skippedBatch++;
-                if ($skippedBatch === 1000) {
-                    dump('Skipped records: '.$skipped);
-                    $skippedBatch = 0;
-                }
-                continue;
-            }
-
-            $this->ineCVE[] = $data['cve'];
-
             $batch[] = [
                 'edad' => intval($data['edad']),
                 'nombre' => $data['nombre'],
@@ -124,7 +112,6 @@ class V1ImportDB
                     $batch = [];
                 } catch (Exception $e) {
                     dump('Error: in records '.$count);
-
                     continue;
                 }
             }
