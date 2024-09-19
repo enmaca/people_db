@@ -33,13 +33,7 @@ class V1ImportDB
 
         $sObj = new self($path_dir, $version);
 
-        ini_set('memory_limit', '32G');
-
-        $sObj->ineCVE = People::select('ine_cve')->get()->pluck('ine_cve')->mapWithKeys(function ($item) {
-            return [$item => true];
-        })->toArray();
         $files = scandir($path_dir);
-
         foreach ($files as $file) {
             if ($file === '.' || $file === '..') {
                 continue;
@@ -47,7 +41,6 @@ class V1ImportDB
 
             switch ($file) {
                 case 'Ine_Baja_California_Norte_2018.csv':
-                case 'Ine_Chiapas_2_2018.csv':
                     $sObj->importINE($file);
                     break;
                 default:
@@ -73,6 +66,7 @@ class V1ImportDB
         }
         $file = fopen($this->path.'/'.$file, 'r');
         $header = fgetcsv($file);
+        $this->ineCVE = [];
         $batch = [];
         $count = 0;
         $skipped = 0;
@@ -84,16 +78,17 @@ class V1ImportDB
                 $data['curp'] = null;
             }
 
-            if (in_array($data['cve'], array_keys($this->ineCVE))) {
+            if (in_array($data['cve'],$this->ineCVE)) {
                 $skipped++;
                 $skippedBatch++;
-                dump('Skipped record: '.$skipped);
                 if ($skippedBatch === 1000) {
                     dump('Skipped records: '.$skipped);
                     $skippedBatch = 0;
                 }
                 continue;
             }
+
+            $this->ineCVE[] = $data['cve'];
 
             $batch[] = [
                 'edad' => intval($data['edad']),
