@@ -76,6 +76,7 @@ class V1ImportDB
 
             if (empty($data['curp'])) {
                 dump($data['curp']);
+                dump($row);
                 continue;
             }
             if (in_array($data['curp'], array_keys($this->ineCurps))) {
