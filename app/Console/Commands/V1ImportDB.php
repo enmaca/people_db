@@ -119,6 +119,7 @@ class V1ImportDB
                             People::create($record);
                         } catch (Exception $e) {
                             dump('Error: '.$e->getMessage());
+
                             continue;
                         }
                     }
