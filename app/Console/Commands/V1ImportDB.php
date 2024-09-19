@@ -33,7 +33,7 @@ class V1ImportDB
 
         $sObj = new self($path_dir, $version);
 
-        ini_set('memory_limit', '2048M');
+        ini_set('memory_limit', '32G');
 
         $sObj->ineCVE = People::select('ine_cve')->get()->pluck('ine_cve')->toArray();
         $files = scandir($path_dir);
@@ -83,6 +83,7 @@ class V1ImportDB
 
             if (in_array($data['cve'], array_keys($this->ineCVE))) {
                 $skipped++;
+
                 continue;
             }
             $batch[] = [
