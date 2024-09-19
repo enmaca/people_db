@@ -35,7 +35,9 @@ class V1ImportDB
 
         ini_set('memory_limit', '32G');
 
-        $sObj->ineCVE = People::select('ine_cve')->get()->pluck('ine_cve')->toArray();
+        $sObj->ineCVE = People::select('ine_cve')->get()->pluck('ine_cve')->mapWithKeys(function ($item) {
+            return [$item => true];
+        })->toArray();
         $files = scandir($path_dir);
 
         foreach ($files as $file) {
@@ -74,6 +76,7 @@ class V1ImportDB
         $batch = [];
         $count = 0;
         $skipped = 0;
+        $skippedBatch = 0;
         while ($row = fgetcsv($file)) {
             $data = array_combine($header, $row);
 
@@ -83,9 +86,14 @@ class V1ImportDB
 
             if (in_array($data['cve'], array_keys($this->ineCVE))) {
                 $skipped++;
+                if ($skippedBatch === 1000) {
+                    dump('Skipped records: '.$skipped);
+                    $skippedBatch = 0;
+                }
 
                 continue;
             }
+
             $batch[] = [
                 'edad' => intval($data['edad']),
                 'nombre' => $data['nombre'],
