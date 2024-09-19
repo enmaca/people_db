@@ -113,7 +113,7 @@ class V1ImportDB
             }
         }
         $filep = fopen($this->path.'/'.$file, 'r');
-        $header = fgetcsv($file);
+        $header = fgetcsv($filep);
         $this->ineCVE = [];
         $batch = [];
         $count = 0;
