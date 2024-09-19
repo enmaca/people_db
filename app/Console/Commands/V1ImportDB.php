@@ -112,7 +112,16 @@ class V1ImportDB
                     $batch = [];
                 } catch (Exception $e) {
                     dump('Error: in records '.$count);
-                    continue;
+                    DB::rollBack();
+                    foreach ($batch as $record) {
+                        try {
+                            People::create($record);
+                        } catch (Exception $e) {
+                            dump('Error: '.$e->getMessage());
+                            continue;
+                        }
+                    }
+                    $batch = [];
                 }
             }
             $this->ineCVE[$data['curp']] = [];
@@ -126,7 +135,15 @@ class V1ImportDB
                 DB::commit();
                 $batch = [];
             } catch (Exception $e) {
-                dump('Error: in records '.$count);
+                DB::rollBack();
+                foreach ($batch as $record) {
+                    try {
+                        People::create($record);
+                    } catch (Exception $e) {
+                        dump('Error: '.$e->getMessage());
+                        continue;
+                    }
+                }
             }
         }
         fclose($file);
