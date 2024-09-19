@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('ine_consec')->index();
             $table->tinyInteger('ine_cred')->index();
             $table->string('ine_folio', 20)->index();
+            $table->datetimes();
         });
     }
 
