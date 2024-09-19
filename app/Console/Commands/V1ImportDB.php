@@ -208,7 +208,12 @@ class V1ImportDB
 
     public function parseDateINE($dateString)
     {
-        $date = Carbon::createFromFormat('d/m/y H:i:s', $dateString);
+        try {
+            $date = Carbon::createFromFormat('d/m/y H:i:s', $dateString);
+        } catch (Exception $e) {
+            return null;
+        }
+
         $year = $date->year;
 
         if ($year > 2000) {

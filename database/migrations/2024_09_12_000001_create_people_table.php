@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nombre')->index();
             $table->string('paterno')->index();
             $table->string('materno')->index();
-            $table->date('fecha_nacimiento')->index();
+            $table->date('fecha_nacimiento')->nullable()->index();
             $table->enum('sexo', ['M', 'H']);
             $table->string('calle')->index();
             $table->string('curp', 18)->nullable()->unique();
