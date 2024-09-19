@@ -73,6 +73,10 @@ class V1ImportDB
 
         while ($row = fgetcsv($file)) {
             $data = array_combine($header, $row);
+
+            dump($data['curp']);
+            dump($row);
+            dd('ok');
             if (empty($data['curp'])) {
                 dump($data['curp']);
                 dump($row);
