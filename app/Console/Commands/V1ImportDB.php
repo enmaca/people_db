@@ -73,6 +73,7 @@ class V1ImportDB
 
         while ($row = fgetcsv($file)) {
             $data = array_combine($header, $row);
+            dump('pass');
             if ($data['curp'] !== null && in_array($data['curp'], array_keys($this->ine_curps))) {
                 continue;
             }
@@ -110,6 +111,7 @@ class V1ImportDB
                     $batch = [];
                 } catch (Exception $e) {
                     dump('Error: in records '.$count);
+
                     continue;
                 }
             }
