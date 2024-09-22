@@ -119,7 +119,14 @@ class V1ImportDB
         $count = 0;
         $skipped = 0;
         while ($row = fgetcsv($filep)) {
-            $data = array_combine($header, $row);
+            try {
+                $data = array_combine($header, $row);
+            } catch (Exception $e) {
+                dump('Error: '.$e->getMessage());
+                $skipped++;
+                continue;
+            }
+
 
             if (empty($data['curp'])) {
                 $data['curp'] = null;
