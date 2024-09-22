@@ -119,8 +119,9 @@ class V1ImportDB
         $count = 0;
         $skipped = 0;
         while ($row = fgetcsv($filep)) {
-            if( count( $header ) !== count( $row ) ) {
+            if (count($header) !== count($row)) {
                 $skipped++;
+
                 continue;
             }
 
